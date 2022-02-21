@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Web 2 Pizza Shop Tests</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/mocha/8.3.2/mocha.min.css">
+</head>
+<body>
+  <div id="mocha"></div>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/mocha/8.3.2/mocha.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/chai/4.3.4/chai.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/sinon.js/10.0.1/sinon.min.js"></script>
+  <script src="index.js"></script>
+  <script>
+    mocha.setup("bdd");
+    const expect = chai.expect;
+
+    describe("Web 2 Pizza Shop", function () {
+      beforeEach(function() {
+        this.alertStub = sinon.stub(window, "alert")
+        this.promptStub = sinon.stub(window, "prompt").returns("")
+        this.confirmStub = sinon.stub(window, "confirm").returns(false)
+      })
+      afterEach(function() {
+        sinon.restore()
+      })
+      it("should alert once, prompt twice, confirm twice", function () {
+        getPizzaOrder()
+        expect(this.alertStub.callCount).to.eq(1);
+        expect(this.promptStub.callCount).to.eq(2);
+        expect(this.confirmStub.callCount).to.eq(2);
+      });
+      it("Pizza base price should be $10", function () {
+        const pizza = getPizzaOrder()
+        expect(this.alertStub.callCount).to.eq(1);
+        expect(this.promptStub.callCount).to.eq(2);
+        expect(this.confirmStub.callCount).to.eq(2);
+        expect(pizza.cost).to.eq(10);
+      });
+      it("Extra cheese should add $1.50", function () {
+        this.confirmStub.restore()
+        var confirmStub = sinon.stub(window, "confirm")
+        confirmStub.onFirstCall().returns(true) //extra cheese
+        confirmStub.onSecondCall().returns(false)
+        const pizza = getPizzaOrder()
+        expect(this.alertStub.callCount).to.eq(1);
+        expect(this.promptStub.callCount).to.eq(2);
+        expect(confirmStub.callCount).to.eq(2);
+        expect(pizza.cost).to.eq(11.5);
+        expect(pizza.extraCheese).to.be.true
+      });
+      it("Delivery should add $3.50", function () {
+        this.confirmStub.restore()
+        var confirmStub = sinon.stub(window, "confirm")
+        confirmStub.onFirstCall().returns(false) //extra cheese
+        confirmStub.onSecondCall().returns(true) //delivery
+        const pizza = getPizzaOrder()
+        expect(this.alertStub.callCount).to.eq(1);
+        expect(this.promptStub.callCount).to.eq(2);
+        expect(confirmStub.callCount).to.eq(2);
+        expect(pizza.saleType.toLowerCase().trim()).to.eq('delivery')
+        expect(pizza.cost).to.eq(13.5);
+      });
+      it("Thick Crust should add $2", function () {
+        this.promptStub.restore()
+        var promptStub = sinon.stub(window, "prompt")
+        promptStub.onFirstCall().returns("thick") //crust
+        promptStub.onSecondCall().returns("") //toppings
+        const pizza = getPizzaOrder()
+        expect(this.alertStub.callCount).to.eq(1);
+        expect(promptStub.callCount).to.eq(2);
+        expect(this.confirmStub.callCount).to.eq(2);
+        expect(pizza.crust.toLowerCase().trim()).to.eq('thick')
+        expect(pizza.cost).to.eq(12);
+      });
+      it("No extra toppings should not affect base price", function () {
+        this.promptStub.restore()
+        var promptStub = sinon.stub(window, "prompt")
+        promptStub.onFirstCall().returns("") //crust
+        promptStub.onSecondCall().returns("") //toppings
+        const pizza = getPizzaOrder()
+        expect(this.alertStub.callCount).to.eq(1);
+        expect(promptStub.callCount).to.eq(2);
+        expect(this.confirmStub.callCount).to.eq(2);
+        expect(Array.isArray(pizza.toppings)).to.be.true
+        expect(pizza.toppings.length).to.eq(0)
+        expect(pizza.cost).to.eq(10);
+      });
+      it("One extra topping should add $1.5", function () {
+        this.promptStub.restore()
+        var promptStub = sinon.stub(window, "prompt")
+        promptStub.onFirstCall().returns("") //crust
+        promptStub.onSecondCall().returns("pepperoni") //toppings
+        const pizza = getPizzaOrder()
+        expect(this.alertStub.callCount).to.eq(1);
+        expect(promptStub.callCount).to.eq(2);
+        expect(this.confirmStub.callCount).to.eq(2);
+        expect(Array.isArray(pizza.toppings)).to.be.true
+        expect(pizza.toppings.length).to.eq(1)
+        expect(pizza.cost).to.eq(11.5);
+      });
+      it("Two extra toppings should add $3", function () {
+        this.promptStub.restore()
+        var promptStub = sinon.stub(window, "prompt")
+        promptStub.onFirstCall().returns("") //crust
+        promptStub.onSecondCall().returns("pepperoni, mushroom") //toppings
+        const pizza = getPizzaOrder()
+        expect(this.alertStub.callCount).to.eq(1);
+        expect(promptStub.callCount).to.eq(2);
+        expect(this.confirmStub.callCount).to.eq(2);
+        expect(Array.isArray(pizza.toppings)).to.be.true
+        expect(pizza.toppings.length).to.eq(2)
+        expect(pizza.cost).to.eq(13);
+      });
+      it("Ten extra toppings should add $15", function () {
+        this.promptStub.restore()
+        var promptStub = sinon.stub(window, "prompt")
+        promptStub.onFirstCall().returns("") //crust
+        promptStub.onSecondCall().returns("1,2,3,4,5,6,7,8,9,0") //toppings
+        const pizza = getPizzaOrder()
+        expect(this.alertStub.callCount).to.eq(1);
+        expect(promptStub.callCount).to.eq(2);
+        expect(this.confirmStub.callCount).to.eq(2);
+        expect(Array.isArray(pizza.toppings)).to.be.true
+        expect(pizza.toppings.length).to.eq(10)
+        expect(pizza.cost).to.eq(25);
+      });
+    });
+
+    mocha.run();
+  </script>
+</body>
+</html>

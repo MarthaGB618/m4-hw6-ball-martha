@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Web to Pizza</title>
+  <style>
+    body {
+      background-image: url('./pizza.png');
+      background-size: 300px;
+      background-repeat: repeat;
+    }
+    main {
+      background-color: white;
+      box-shadow: 4px 4px 12px;
+      max-width: 1024px;
+      display: block;
+      margin: 0 auto;
+      padding: 24px 0;
+      margin-top: 96px;
+    }
+    h1 {
+      text-align: center;
+    }
+    nav {
+      display: flex;
+      justify-content: center;
+    }
+
+    button {
+      padding: 10px;
+      margin: 10px;
+    }
+  </style>
+</head>
+<body>
+  <main>
+    <h1>Welcome to Web to Pizza!</h1>
+    <nav>
+      <button id="main">Order Now!</button>
+      <a href="tests.html"><button>Run Tests</button></a>
+    </nav>
+    <ol id="orders"></ol>
+  </main>
+  <script src="./index.js"></script>
+  <script>document.querySelector('#main').onclick = orderPizza</script>
+</body>
+</html>
